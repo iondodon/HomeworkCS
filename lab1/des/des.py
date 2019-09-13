@@ -9,7 +9,6 @@ IP = (
     61, 53, 45, 37, 29, 21, 13, 5,
     63, 55, 47, 39, 31, 23, 15, 7
 )
-
 IP_INV = (
     40, 8, 48, 16, 56, 24, 64, 32,
     39, 7, 47, 15, 55, 23, 63, 31,
@@ -20,7 +19,6 @@ IP_INV = (
     34, 2, 42, 10, 50, 18, 58, 26,
     33, 1, 41, 9, 49, 17, 57, 25
 )
-
 PC1 = (
     57, 49, 41, 33, 25, 17, 9,
     1, 58, 50, 42, 34, 26, 18,
@@ -31,7 +29,6 @@ PC1 = (
     14, 6, 61, 53, 45, 37, 29,
     21, 13, 5, 28, 20, 12, 4
 )
-
 PC2 = (
     14, 17, 11, 24, 1, 5,
     3, 28, 15, 6, 21, 10,
@@ -123,7 +120,7 @@ def encrypt(msg, key, decrypt=False):
     assert not msg.bit_length() > 64
     assert not key.bit_length() > 64
 
-    # permute by table PC1
+    # permutate by table PC1
     key = permutation_by_table(key, 64, PC1)  # 64bit -> PC1 -> 56bit
 
     # split up key in two halves
@@ -231,12 +228,6 @@ def generate_round_keys(C0, D0):
     return round_keys
 
 
-k = 0x0e329232ea6d0d73  # 64 bit
-k2 = 0x133457799BBCDFF1
-m = 0x8787878787878787
-m2 = 0x0123456789ABCDEF
-
-
 def prove(key, msg):
     print('key:       {:x}'.format(key))
     print('message:   {:x}'.format(msg))
@@ -246,6 +237,8 @@ def prove(key, msg):
     print('decrypted: {:x}'.format(plain_text))
 
 
-prove(k, m)
+k3 = 0x733457799BBCDAA1
+m3 = 0x6123411189ABC00F
+
 print('----------')
-prove(k2, m2)
+prove(k3, m3)
