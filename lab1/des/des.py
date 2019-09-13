@@ -120,7 +120,7 @@ def encrypt(msg, key, decrypt=False):
     assert not msg.bit_length() > 64
     assert not key.bit_length() > 64
 
-    # permutate by table PC1
+    # permute by table PC1
     key = permutation_by_table(key, 64, PC1)  # 64bit -> PC1 -> 56bit
 
     # split up key in two halves
@@ -133,9 +133,10 @@ def encrypt(msg, key, decrypt=False):
     L0 = msg_block >> 32
     R0 = msg_block & (2 ** 32 - 1)
 
-    # apply thr round function 16 times in following scheme (feistel cipher):
+    # apply the round function 16 times in following scheme
     L_last = L0
     R_last = R0
+    R_round, L_round = "", ""
     for i in range(1, 17):
         if decrypt:  # just use the round keys in reversed order
             i = 17 - i
@@ -144,7 +145,7 @@ def encrypt(msg, key, decrypt=False):
         L_last = L_round
         R_last = R_round
 
-    # concatenate reversed
+    # 32 bit swap, concatenate reversed
     cipher_block = (R_round << 32) + L_round
 
     # final permutation
@@ -240,5 +241,4 @@ def prove(key, msg):
 k3 = 0x733457799BBCDAA1
 m3 = 0x6123411189ABC00F
 
-print('----------')
 prove(k3, m3)

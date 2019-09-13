@@ -2,11 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="f975ab3f-db90-4a2d-8b6d-6c02b8f0e7b7" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/dictionaries/ion.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dictionaries/ion.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/des/des.py" beforeDir="false" afterPath="$PROJECT_DIR$/des/des.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/des/des_me.py" beforeDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -61,7 +59,7 @@
       <updated>1568044304745</updated>
       <workItem from="1568044306194" duration="1424000" />
       <workItem from="1568192103758" duration="523000" />
-      <workItem from="1568353127994" duration="9932000" />
+      <workItem from="1568353127994" duration="10600000" />
     </task>
     <servers />
   </component>

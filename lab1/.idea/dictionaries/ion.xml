@@ -2,6 +2,7 @@
   <dictionary name="ion">
     <words>
       <w>lrot</w>
+      <w>sboxes</w>
     </words>
   </dictionary>
 </component>
