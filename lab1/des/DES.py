@@ -253,6 +253,7 @@ def round_cycles(text_bin, round_keys, method):
             round_key = round_keys[i]
         else:
             round_key = round_keys[16 - i - 1]
+
         L_new = R
         R_new = xor(L, f_function(R, round_key))
         L = L_new
@@ -283,5 +284,8 @@ def decrypt(_encrypted_text, _key):
 msg = 'qwertyui'
 key = 'qwertyui'
 
-print(bin_to_text(encrypt(msg, key)))
-print(bin_to_text(decrypt(msg, key)))
+encrypted = encrypt(msg, key)
+decrypted = decrypt(encrypted, key)
+
+print(bin_to_text(encrypted))
+print(bin_to_text(decrypted))
