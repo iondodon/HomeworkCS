@@ -20,6 +20,28 @@ IP_INV = (
     33, 1, 41, 9, 49, 17, 57, 25
 )
 
+PC1 = (
+    57, 49, 41, 33, 25, 17, 9,
+    1, 58, 50, 42, 34, 26, 18,
+    10, 2, 59, 51, 43, 35, 27,
+    19, 11, 3, 60, 52, 44, 36,
+    63, 55, 47, 39, 31, 23, 15,
+    7, 62, 54, 46, 38, 30, 22,
+    14, 6, 61, 53, 45, 37, 29,
+    21, 13, 5, 28, 20, 12, 4
+)
+
+PC2 = (
+    14, 17, 11, 24, 1, 5,
+    3, 28, 15, 6, 21, 10,
+    23, 19, 12, 4, 26, 8,
+    16, 7, 27, 20, 13, 2,
+    41, 52, 31, 37, 47, 55,
+    30, 40, 51, 45, 33, 48,
+    44, 49, 39, 56, 34, 53,
+    46, 42, 50, 36, 29, 32
+)
+
 E = (
     32, 1, 2, 3, 4, 5,
     4, 5, 6, 7, 8, 9,
@@ -97,9 +119,14 @@ Sboxes = {
 def text_to_bin(text):
     bin_str = ''
     for ch in text:
-        bin_chr = bin(ord(ch))
-        bin_str += bin_chr[0] + bin_chr[2:]
-
+        ord_ch = ord(ch)
+        c = ''
+        while ord_ch > 0:
+            c = str(ord_ch % 2) + c
+            ord_ch //= 2
+        while len(c) < 8:
+            c = '0' + c
+        bin_str += c
     return bin_str
 
 
@@ -116,8 +143,8 @@ def to_bin(a):
 
 def bin_to_text(bin_text):
     text = ''
-    i = 0
 
+    i = 0
     while i < 64:
         num = 0
         bin_str = bin_text[i:i + 8]
@@ -140,16 +167,13 @@ def bin_to_text(bin_text):
 def to_int(string_number):
     """returns int"""
     c = 0
-    new_string_number = ''
+    reverse_string_number = ''
     for k in range(len(string_number)):
-        new_string_number += string_number[len(string_number) - k - 1]
+        reverse_string_number += string_number[len(string_number) - k - 1]
 
-    k = 0
-    while k < len(new_string_number):
-        if new_string_number[k] == '1':
+    for k in range(len(reverse_string_number)):
+        if reverse_string_number[k] == '1':
             c += 2 ** k
-        print(k, 2 ** k)
-        k += 1
     return c
 
 
@@ -176,7 +200,6 @@ def sboxes_perform(sbinput):
     sboutput = ''
     for j in range(8):
         start = j * 6
-        if j > 0: start += 1
         box_in = sbinput[start:start + 6]
         raw = to_int(box_in[0] + box_in[5])
         col = to_int(box_in[1:5])
@@ -185,9 +208,33 @@ def sboxes_perform(sbinput):
     return sboutput
 
 
-def f_function(R, key):
+def generate_round_keys(initial_key):
+    lrot_values = (1, 1, 2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 1)
+
+    round_keys = []
+
+    prev_key = permute_by_table(initial_key, PC1)
+    for k in range(16):
+        new_key = prev_key
+        for i in range(lrot_values[k]):
+            key_left = new_key[:28]
+            key_right = new_key[28:]
+
+            key_left += key_left[0]
+            key_left = key_left[1:]
+            key_right += key_right[0]
+            key_right = key_right[1:]
+
+            new_key = key_left + key_right
+
+        prev_key = new_key
+        round_keys.append(permute_by_table(new_key, PC2))
+    return round_keys
+
+
+def f_function(R, round_key):
     str_bin = permute_by_table(R, E)
-    str_bin = xor(str_bin, key)
+    str_bin = xor(str_bin, round_key)
 
     str_bin = sboxes_perform(str_bin)
     str_bin = permute_by_table(str_bin, P)
@@ -195,20 +242,46 @@ def f_function(R, key):
     return str_bin
 
 
-def round_function(text_bin):
-    L = text_bin[:32], R = text_bin[32:]
+def round_cycles(text_bin, round_keys, method):
+    # initial permutation
+    text_bin = permute_by_table(text_bin, IP)
+
+    L = text_bin[:32]
+    R = text_bin[32:]
     for i in range(16):
+        if method == 0:
+            round_key = round_keys[i]
+        else:
+            round_key = round_keys[16 - i - 1]
         L_new = R
-        R_new = xor(L, f_function(R, key))
+        R_new = xor(L, f_function(R, round_key))
         L = L_new
         R = R_new
 
+    # final permutation
     output_bin = permute_by_table(R + L, IP_INV)
+
     return output_bin
 
 
-msg = 'qwertyui'
-key = '12345678'
+def encrypt(_msg, _key):
+    text_bin = text_to_bin(_msg)
+    key_bin = text_to_bin(_key)
+    round_keys = generate_round_keys(key_bin)
+    encrypted_text = round_cycles(text_bin, round_keys, 0)
+    return encrypted_text
 
-print(text_to_bin(msg))
-print(permute_by_table(text_to_bin(msg)[32:], E))
+
+def decrypt(_encrypted_text, _key):
+    text_bin = text_to_bin(_encrypted_text)
+    key_bin = text_to_bin(_key)
+    round_keys = generate_round_keys(key_bin)
+    decrypted_text = round_cycles(text_bin, round_keys, 1)
+    return decrypted_text
+
+
+msg = 'qwertyui'
+key = 'qwertyui'
+
+print(bin_to_text(encrypt(msg, key)))
+print(bin_to_text(decrypt(msg, key)))
