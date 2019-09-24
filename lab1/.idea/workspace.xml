@@ -1,18 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="f975ab3f-db90-4a2d-8b6d-6c02b8f0e7b7" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/des/DES.py" beforeDir="false" afterPath="$PROJECT_DIR$/des/DES.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/des/des.py" beforeDir="false" afterPath="$PROJECT_DIR$/des/des.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../lab1_c/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../lab1_c/.idea/lab1_c.iml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../lab1_c/.idea/misc.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../lab1_c/.idea/modules.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../lab1_c/.idea/vcs.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../lab1_c/.idea/workspace.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../lab1_c/main.cpp" beforeDir="false" />
-    </list>
+    <list default="true" id="f975ab3f-db90-4a2d-8b6d-6c02b8f0e7b7" name="Default Changelist" comment="" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -155,6 +144,7 @@
       <workItem from="1569141412055" duration="15125000" />
       <workItem from="1569218538775" duration="10828000" />
       <workItem from="1569309112537" duration="10262000" />
+      <workItem from="1569335307344" duration="311000" />
     </task>
     <servers />
   </component>
