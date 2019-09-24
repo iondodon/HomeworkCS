@@ -288,5 +288,3 @@ decrypted = decrypt(encrypted, round_keys)
 
 print(bin_to_text(encrypted))
 print(bin_to_text(decrypted))
-
-print(bin_to_text('0111000101110111011001010111001001110100011110010111010101101001'))

@@ -1,3 +1,7 @@
+import sys
+import binascii
+import codecs
+
 # Permutation tables and Sboxes
 IP = (
     58, 50, 42, 34, 26, 18, 10, 2,
@@ -232,18 +236,40 @@ def generate_round_keys(C0, D0):
     return round_keys
 
 
+def to_str(str_in):
+    str_in = hex(str_in)
+    i = 2
+    result = ''
+    while i < len(str_in):
+        a = str_in[i]
+        b = str_in[i + 1]
+        ord_num = int(a + b, 16)
+        ch = chr(ord_num)
+        result += ch
+        i += 2
+    return result
+
+
 def prove(key, msg):
-    print('key:       {:x}'.format(key))
-    print('message:   {:x}'.format(msg))
+    text = to_str(key)
+    print('key:       ' + text)
+    text = to_str(msg)
+    print('message:   ' + text)
     cipher_text = encrypt(msg, key)
-    print('encrypted: {:x}'.format(cipher_text))
+    text = to_str(cipher_text)
+    print('encrypted: ' + text)
     plain_text = encrypt(cipher_text, key, decrypt=True)
-    print('decrypted: {:x}'.format(plain_text))
+    text = to_str(plain_text)
+    print('decrypted: ' + text)
 
 
-k3 = 0x733457799BBCDAA1
-m3 = 0x6123411189ABC00F
+k = binascii.hexlify(sys.argv[1].encode('utf-8'))
+k = int(k, 16)
+k_str = hex(k)
+
+m = binascii.hexlify(sys.argv[2].encode('utf-8'))
+m = int(m, 16)
+m_str = hex(m)
 
 
-# prove(k3, m3)
-########################################################################################################################
+prove(k, m)
