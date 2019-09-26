@@ -184,7 +184,6 @@ def round_function(Ri, Ki):
     Ri = 0
     for block, lshift_val in Ri_blocks:
         Ri += (block << lshift_val)
-
     # another permutation 32bit -> 32bit
     Ri = permutation_by_table(Ri, 32, P)
 
