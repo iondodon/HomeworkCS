@@ -1,7 +1,7 @@
-import sys
+# import sys
 
 key = None
-plain_text = None
+data = None
 
 s_box = {
     '0': {'0':0x63, '1':0x7C, '2':0x77, '3':0x7B, '4':0xF2, '5':0x6B, '6':0x6F, '7':0xC5, '8':0x30, '9':0x01, 'a':0x67, 'b':0x2B, 'c':0xFE, 'd':0xD7, 'e':0xAB, 'f':0x76},
@@ -24,7 +24,7 @@ s_box = {
 
 # first should be ignored
 RC = [0x00, 0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80, 0x1B, 0x36]
-round_keys = [0x63, 0x7C, 0x77, 0x7B, 0xF2, 0x6B, 0x6F, 0xC5, 0x30, 0x01, 0x67, 0x2B, 0xFE, 0xD7, 0xAB, 0x76]
+round_keys = []
 
 
 def S(_input):
@@ -60,7 +60,7 @@ def generate_round_keys(initial_key):
         return V
 
     round_keys[0] = initial_key
-    for i in list(range(1,11)):
+    for i in range(1,11):
         W0 = round_keys[i-1][:4]
         W1 = round_keys[i-1][4:8]
         W2 = round_keys[i-1][8:12]
@@ -74,17 +74,47 @@ def generate_round_keys(initial_key):
         round_keys[i] = W0 + W1 + W2 + W3
 
 
+def byte_substitution(_data):
+    for i in range(len(_data)):
+        _data[i] = S(_data[i])
+    return _data
+
+
+def shift_rows(_data):
+    return _data
+
+
+def mix_column(_data):
+    return _data
+
+
+def key_addition(_data):
+    return _data
+
+
+def rounds(_data, _round_keys):
+    _data = byte_substitution(_data)
+
+    for i in range(1, 11):
+        _data = byte_substitution(_data)
+        _data = shift_rows(_data)
+        if i < 10:
+            _data = mix_column(_data)
+        _data = key_addition(_data)
+
+
 def prepare_data():
+    global key, data
     # key = list(sys.argv[2])
-    # plain_text = list(sys.argv[1])
-    global key, plain_text
+    # data = list(sys.argv[1])
     key = list('asdfghjklmnbvcxd')
-    plain_text = list('asdfghjklmnbvcxd')
+    data = list('asdfghjklmnbvcxd')
 
     for k in range(0, 16):
         key[k] = ord(key[k])
-        plain_text[k] = ord(plain_text[k])
+        data[k] = ord(data[k])
 
 
 prepare_data()
 generate_round_keys(key)
+rounds(data, round_keys)
