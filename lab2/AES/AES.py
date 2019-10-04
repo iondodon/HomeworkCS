@@ -1,8 +1,5 @@
 # import sys
 
-key = None
-data = None
-
 s_box = {
     '0': {'0': 0x63, '1': 0x7C, '2': 0x77, '3': 0x7B, '4': 0xF2, '5': 0x6B, '6': 0x6F, '7': 0xC5, '8': 0x30, '9': 0x01,
           'a': 0x67, 'b': 0x2B, 'c': 0xFE, 'd': 0xD7, 'e': 0xAB, 'f': 0x76},
@@ -40,7 +37,6 @@ s_box = {
 
 # first should be ignored
 RC = [0x00, 0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80, 0x1B, 0x36]
-round_keys = []
 
 
 def S(_input):
@@ -64,6 +60,8 @@ def xor(a, b):
 
 
 def generate_round_keys(initial_key):
+    _round_keys = []
+
     def g(W, k):
         V = [W[1], W[2], W[3], W[0]]
 
@@ -75,45 +73,35 @@ def generate_round_keys(initial_key):
         V[0] = V[0] ^ RC[k]
         return V
 
-    round_keys[0] = initial_key
+    _round_keys[0] = initial_key
     for i in range(1, 11):
-        W0 = round_keys[i - 1][:4]
-        W1 = round_keys[i - 1][4:8]
-        W2 = round_keys[i - 1][8:12]
-        W3 = round_keys[i - 1][12:]
+        W0 = _round_keys[i - 1][:4]
+        W1 = _round_keys[i - 1][4:8]
+        W2 = _round_keys[i - 1][8:12]
+        W3 = _round_keys[i - 1][12:]
 
         W0 = xor(g(W0, i), W0)
         W1 = xor(W0, W1)
         W2 = xor(W1, W2)
         W3 = xor(W2, W3)
 
-        round_keys[i] = W0 + W1 + W2 + W3
+        _round_keys[i] = W0 + W1 + W2 + W3
+
+    return _round_keys
 
 
-def byte_substitution(_data):
-    for i in range(len(_data)):
-        _data[i] = S(_data[i])
-    return _data
+def byte_substitution(m):
+    for i in range(4):
+        for j in range(4):
+            m[i][j] = S(m[i][j])
+    return m
 
 
-def shift_rows(_data):
-    s = [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]
-
-    # to matrix
-    s[0] = (_data[0]), s[0] = (_data[4]), s[0] = (_data[8]), s[0] = (_data[12])
-    s[1] = (_data[1]), s[1] = (_data[5]), s[1] = (_data[9]), s[1] = (_data[13])
-    s[2] = (_data[2]), s[2] = (_data[6]), s[2] = (_data[10]), s[2] = (_data[14])
-    s[3] = (_data[3]), s[3] = (_data[7]), s[3] = (_data[11]), s[3] = (_data[15])
-
-    # shift rows
-    s[0][1], s[1][1], s[2][1], s[3][1] = s[1][1], s[2][1], s[3][1], s[0][1]
-    s[0][2], s[1][2], s[2][2], s[3][2] = s[2][2], s[3][2], s[0][2], s[1][2]
-    s[0][3], s[1][3], s[2][3], s[3][3] = s[3][3], s[0][3], s[1][3], s[2][3]
-
-    # to list
-    
-
-    return _data
+def shift_rows(m):
+    m[1][0], m[1][1], m[1][2], m[1][3] = m[1][1], m[1][2], m[1][3], m[1][0]
+    m[2][0], m[2][1], m[2][2], m[2][3] = m[2][2], m[2][3], m[2][0], m[2][1]
+    m[3][0], m[3][1], m[3][2], m[3][3] = m[3][3], m[3][0], m[3][1], m[3][2]
+    return m
 
 
 def mix_column(_data):
@@ -124,32 +112,46 @@ def key_addition(_data):
     return _data
 
 
-def rounds(_data, _round_keys):
-    _data = byte_substitution(_data)
+def rounds(m, _round_keys):
+    m = byte_substitution(m)
 
     for i in range(1, 11):
-        _data = byte_substitution(_data)
-        _data = shift_rows(_data)
+        m = byte_substitution(m)
+        m = shift_rows(m)
         if i < 10:
-            _data = mix_column(_data)
-        _data = key_addition(_data)
+            m = mix_column(m)
+        m = key_addition(m)
 
-    return _data
+    return m
 
 
 def prepare_data():
-    global key, data
-    # key = list(sys.argv[2])
-    # data = list(sys.argv[1])
-    key = list('asdfghjklmnbvcxd')
-    data = list('asdfghjklmnbvcxd')
+    def to_matrix(_list):
+        m = [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]
+        m[0] = (_list[0]), m[0] = (_list[4]), m[0] = (_list[8]), m[0] = (_list[12])
+        m[1] = (_list[1]), m[1] = (_list[5]), m[1] = (_list[9]), m[1] = (_list[13])
+        m[2] = (_list[2]), m[2] = (_list[6]), m[2] = (_list[10]), m[2] = (_list[14])
+        m[3] = (_list[3]), m[3] = (_list[7]), m[3] = (_list[11]), m[3] = (_list[15])
+        return m
 
-    for k in range(0, 16):
-        key[k] = ord(key[k])
-        data[k] = ord(data[k])
+    def to_int_list(data_str):
+        r = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        for k in range(0, 16):
+            r[k] = ord(data_str[k])
+        return r
+
+    key_char_list = list('asdfghjklmnbvcxd')
+    data_char_list = list('asdfghjklmnbvcxd')
+
+    data_int_list = to_int_list(data_char_list)
+    key_int_list = to_int_list(key_char_list)
+
+    data_matrix = to_matrix(data_int_list)
+
+    generate_round_keys(key_int_list)
+
+    return data_matrix, round_keys
 
 
-prepare_data()
-generate_round_keys(key)
-data = rounds(data, round_keys)
-print(data)
+data_matrix, round_keys = prepare_data()
+data = rounds(data_matrix, round_keys)
