@@ -37,6 +37,26 @@ s_box = {
 }
 
 
+s_box_inv = {
+    '0': {'0':0x52, '1':0x09, '2':0x6A, '3':0xD5, '4':0x30, '5':0x36, '6':0xA5, '7':0x38, '8':0xBF, '9':0x40, 'a':0xA3, 'b':0x9E, 'c':0x81, 'd':0xF3, 'e':0xD7, 'f':0xFB},
+    '1': {'0':0x7C, '1':0xE3, '2':0x39, '3':0x82, '4':0x9B, '5':0x2F, '6':0xFF, '7':0x87, '8':0x34, '9':0x8E, 'a':0x43, 'b':0x44, 'c':0xC4, 'd':0xDE, 'e':0xE9, 'f':0xCB},
+    '2': {'0':0x54, '1':0x7B, '2':0x94, '3':0x32, '4':0xA6, '5':0xC2, '6':0x23, '7':0x3D, '8':0xEE, '9':0x4C, 'a':0x95, 'b':0x0B, 'c':0x42, 'd':0xFA, 'e':0xC3, 'f':0x4E},
+    '3': {'0':0x08, '1':0x2E, '2':0xA1, '3':0x66, '4':0x28, '5':0xD9, '6':0x24, '7':0xB2, '8':0x76, '9':0x5B, 'a':0xA2, 'b':0x49, 'c':0x6D, 'd':0x8B, 'e':0xD1, 'f':0x25},
+    '4': {'0':0x72, '1':0xF8, '2':0xF6, '3':0x64, '4':0x86, '5':0x68, '6':0x98, '7':0x16, '8':0xD4, '9':0xA4, 'a':0x5C, 'b':0xCC, 'c':0x5D, 'd':0x65, 'e':0xB6, 'f':0x92},
+    '5': {'0':0x6C, '1':0x70, '2':0x48, '3':0x50, '4':0xFD, '5':0xED, '6':0xB9, '7':0xDA, '8':0x5E, '9':0x15, 'a':0x46, 'b':0x57, 'c':0xA7, 'd':0x8D, 'e':0x9D, 'f':0x84},
+    '6': {'0':0x90, '1':0xD8, '2':0xAB, '3':0x00, '4':0x8C, '5':0xBC, '6':0xD3, '7':0x0A, '8':0xF7, '9':0xE4, 'a':0x58, 'b':0x05, 'c':0xB8, 'd':0xB3, 'e':0x45, 'f':0x06},
+    '7': {'0':0xD0, '1':0x2C, '2':0x1E, '3':0x8F, '4':0xCA, '5':0x3F, '6':0x0F, '7':0x02, '8':0xC1, '9':0xAF, 'a':0xBD, 'b':0x03, 'c':0x01, 'd':0x13, 'e':0x8A, 'f':0x6B},
+    '8': {'0':0x3A, '1':0x91, '2':0x11, '3':0x41, '4':0x4F, '5':0x67, '6':0xDC, '7':0xEA, '8':0x97, '9':0xF2, 'a':0xCF, 'b':0xCE, 'c':0xF0, 'd':0xB4, 'e':0xE6, 'f':0x73},
+    '9': {'0':0x96, '1':0xAC, '2':0x74, '3':0x22, '4':0xE7, '5':0xAD, '6':0x35, '7':0x85, '8':0xE2, '9':0xF9, 'a':0x37, 'b':0xE8, 'c':0x1C, 'd':0x75, 'e':0xDF, 'f':0x6E},
+    'a': {'0':0x47, '1':0xF1, '2':0x1A, '3':0x71, '4':0x1D, '5':0x29, '6':0xC5, '7':0x89, '8':0x6F, '9':0xB7, 'a':0x62, 'b':0x0E, 'c':0xAA, 'd':0x18, 'e':0xBE, 'f':0x1B},
+    'b': {'0':0xFC, '1':0x56, '2':0x3E, '3':0x4B, '4':0xC6, '5':0xD2, '6':0x79, '7':0x20, '8':0x9A, '9':0xDB, 'a':0xC0, 'b':0xFE, 'c':0x78, 'd':0xCD, 'e':0x5A, 'f':0xF4},
+    'c': {'0':0x1F, '1':0xDD, '2':0xA8, '3':0x33, '4':0x88, '5':0x07, '6':0xC7, '7':0x31, '8':0xB1, '9':0x12, 'a':0x10, 'b':0x59, 'c':0x27, 'd':0x80, 'e':0xEC, 'f':0x5F},
+    'd': {'0':0x60, '1':0x51, '2':0x7F, '3':0xA9, '4':0x19, '5':0xB5, '6':0x4A, '7':0x0D, '8':0x2D, '9':0xE5, 'a':0x7A, 'b':0x9F, 'c':0x93, 'd':0xC9, 'e':0x9C, 'f':0xEF},
+    'e': {'0':0xA0, '1':0xE0, '2':0x3B, '3':0x4D, '4':0xAE, '5':0x2A, '6':0xF5, '7':0xB0, '8':0xC8, '9':0xEB, 'a':0xBB, 'b':0x3C, 'c':0x83, 'd':0x53, 'e':0x99, 'f':0x61},
+    'f': {'0':0x17, '1':0x2B, '2':0x04, '3':0x7E, '4':0xBA, '5':0x77, '6':0xD6, '7':0x26, '8':0xE1, '9':0x69, 'a':0x14, 'b':0x63, 'c':0x55, 'd':0x21, 'e':0x0C, 'f':0x7D}
+}
+
+
 def generate_round_keys(initial_key):
     _round_keys = []
 
@@ -90,10 +110,29 @@ def S(_input):
     return s_box[x][y]
 
 
+def S_inv(_input):
+    hex_str = hex(_input)
+    if len(hex_str) == 3:
+        x = '0'
+        y = hex_str[2]
+    else:
+        x = hex_str[2]
+        y = hex_str[3]
+
+    return s_box_inv[x][y]
+
+
 def byte_substitution(m):
     for j in range(4):
         for i in range(4):
             m[i][j] = S(m[i][j])
+    return m
+
+
+def byte_substitution_inv(m):
+    for j in range(4):
+        for i in range(4):
+            m[i][j] = S_inv(m[i][j])
     return m
 
 
@@ -113,37 +152,37 @@ def mix_single_column(a):
     return a
 
 
-# def diffusion_inv():
-    # def mix_columns_inv(s):
-    #     # see Sec 4.1.3 in The Design of Rijndael
-    #     for i in range(4):
-    #         u = xtime(xtime(s[i][0] ^ s[i][2]))
-    #         v = xtime(xtime(s[i][1] ^ s[i][3]))
-    #         s[i][0] ^= u
-    #         s[i][1] ^= v
-    #         s[i][2] ^= u
-    #         s[i][3] ^= v
-    #
-    #     for j in range(4):
-    #         a = mix_single_column([m[0][j], m[1][j], m[2][j], m[3][j]])
-    #         m[0][j] = a[0]
-    #         m[1][j] = a[1]
-    #         m[2][j] = a[2]
-    #         m[3][j] = a[3]
-    #
-    #     return m
+def diffusion_inv(m, i):
+    def mix_columns_inv(m):
+        # see Sec 4.1.3 in The Design of Rijndael
+        for j in range(4):
+            u = xtime(xtime(m[0][j] ^ m[2][j]))
+            v = xtime(xtime(m[1][j] ^ m[3][j]))
+            m[0][j] ^= u
+            m[1][j] ^= v
+            m[2][j] ^= u
+            m[3][j] ^= v
 
-    # def shift_rows(m):
-        # m[1][0], m[1][1], m[1][2], m[1][3] = m[1][1], m[1][2], m[1][3], m[1][0]
-        # m[2][0], m[2][1], m[2][2], m[2][3] = m[2][2], m[2][3], m[2][0], m[2][1]
-        # m[3][0], m[3][1], m[3][2], m[3][3] = m[3][3], m[3][0], m[3][1], m[3][2]
-        # return m
+        for j in range(4):
+            a = mix_single_column([m[0][j], m[1][j], m[2][j], m[3][j]])
+            m[0][j] = a[0]
+            m[1][j] = a[1]
+            m[2][j] = a[2]
+            m[3][j] = a[3]
 
-    # m = shift_rows(m)
-    # if i < 10:
-    #     m = mix_columns_inv(m)
+        return m
 
-    # return m
+    def shift_rows_inv(m):
+        m[1][0], m[1][1], m[1][2], m[1][3] = m[1][3], m[1][0], m[1][1], m[1][2]
+        m[2][0], m[2][1], m[2][2], m[2][3] = m[2][2], m[2][3], m[2][0], m[2][1]
+        m[3][0], m[3][1], m[3][2], m[3][3] = m[3][1], m[3][2], m[3][3], m[3][0]
+        return m
+
+    if i != 10:
+        m = mix_columns_inv(m)
+    m = shift_rows_inv(m)
+
+    return m
 
 
 def diffusion(m, i):
@@ -164,7 +203,7 @@ def diffusion(m, i):
         return m
 
     m = shift_rows(m)
-    if i < 10:
+    if i != 10:
         m = mix_columns(m)
 
     return m
@@ -176,7 +215,6 @@ def key_addition(m, key):
         for i in range(4):
             m[i][j] = m[i][j] ^ key[k]
             k += 1
-
     return m
 
 
@@ -187,6 +225,19 @@ def rounds(m, _round_keys):
         m = byte_substitution(m)
         m = diffusion(m, i)
         m = key_addition(m, _round_keys[i])
+
+    return m
+
+
+def rounds_inv(m, _round_keys):
+    i = 10
+    while i > 0:
+        m = key_addition(m, _round_keys[i])
+        m = diffusion_inv(m, i)
+        m = byte_substitution_inv(m)
+        i -= 1
+
+    m = key_addition(m, _round_keys[0])
 
     return m
 
@@ -235,4 +286,10 @@ def prepare_data():
 
 
 data_matrix, round_keys = prepare_data()
+print(data_matrix)
+
 data = rounds(data_matrix, round_keys)
+print(data)
+
+data = rounds_inv(data, round_keys)
+print(data)
