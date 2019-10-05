@@ -111,6 +111,7 @@ def inv_shift_rows(s):
     s[0][2], s[1][2], s[2][2], s[3][2] = s[2][2], s[3][2], s[0][2], s[1][2]
     s[0][3], s[1][3], s[2][3], s[3][3] = s[1][3], s[2][3], s[3][3], s[0][3]
 
+
 def add_round_key(s, k):
     for i in range(4):
         for j in range(4):

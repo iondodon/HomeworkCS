@@ -1,4 +1,5 @@
 # import sys
+from typing import List, Any, Union
 
 s_box = {
     '0': {'0': 0x63, '1': 0x7C, '2': 0x77, '3': 0x7B, '4': 0xF2, '5': 0x6B, '6': 0x6F, '7': 0xC5, '8': 0x30, '9': 0x01,
@@ -35,8 +36,46 @@ s_box = {
           'a': 0x2D, 'b': 0x0F, 'c': 0xB0, 'd': 0x54, 'e': 0xBB, 'f': 0x16}
 }
 
-# first should be ignored
-RC = [0x00, 0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80, 0x1B, 0x36]
+
+def generate_round_keys(initial_key):
+    _round_keys = []
+
+    # first should be ignored
+    RC = [0x00, 0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80, 0x1B, 0x36]
+
+    def g(W, k):
+        V = [W[1], W[2], W[3], W[0]]
+
+        V[0] = S(V[0])
+        V[1] = S(V[1])
+        V[2] = S(V[2])
+        V[3] = S(V[3])
+
+        V[0] = V[0] ^ RC[k]
+        return V
+
+    def xor(a, b):
+        _output = []
+        for i in range(len(a)):
+            ord_xored = a[i] ^ b[i]
+            _output.append(ord_xored)
+        return _output
+
+    _round_keys.append(initial_key)
+    for i in range(1, 11):
+        W0 = _round_keys[i - 1][:4]
+        W1 = _round_keys[i - 1][4:8]
+        W2 = _round_keys[i - 1][8:12]
+        W3 = _round_keys[i - 1][12:]
+
+        W0 = xor(g(W0, i), W0)
+        W1 = xor(W0, W1)
+        W2 = xor(W1, W2)
+        W3 = xor(W2, W3)
+
+        _round_keys.append(W0 + W1 + W2 + W3)
+
+    return _round_keys
 
 
 def S(_input):
@@ -51,76 +90,103 @@ def S(_input):
     return s_box[x][y]
 
 
-def xor(a, b):
-    _output = []
-    for i in range(len(a)):
-        ord_xored = a[i] ^ b[i]
-        _output.append(ord_xored)
-    return _output
-
-
-def generate_round_keys(initial_key):
-    _round_keys = []
-
-    def g(W, k):
-        V = [W[1], W[2], W[3], W[0]]
-
-        V[0] = S(V[0])
-        V[1] = S(V[1])
-        V[2] = S(V[2])
-        V[3] = S(V[3])
-
-        V[0] = V[0] ^ RC[k]
-        return V
-
-    _round_keys[0] = initial_key
-    for i in range(1, 11):
-        W0 = _round_keys[i - 1][:4]
-        W1 = _round_keys[i - 1][4:8]
-        W2 = _round_keys[i - 1][8:12]
-        W3 = _round_keys[i - 1][12:]
-
-        W0 = xor(g(W0, i), W0)
-        W1 = xor(W0, W1)
-        W2 = xor(W1, W2)
-        W3 = xor(W2, W3)
-
-        _round_keys[i] = W0 + W1 + W2 + W3
-
-    return _round_keys
-
-
 def byte_substitution(m):
-    for i in range(4):
-        for j in range(4):
+    for j in range(4):
+        for i in range(4):
             m[i][j] = S(m[i][j])
     return m
 
 
-def shift_rows(m):
-    m[1][0], m[1][1], m[1][2], m[1][3] = m[1][1], m[1][2], m[1][3], m[1][0]
-    m[2][0], m[2][1], m[2][2], m[2][3] = m[2][2], m[2][3], m[2][0], m[2][1]
-    m[3][0], m[3][1], m[3][2], m[3][3] = m[3][3], m[3][0], m[3][1], m[3][2]
+# learned from http://cs.ucsb.edu/~koc/cs178/projects/JT/aes.c
+xtime = lambda a: (((a << 1) ^ 0x1B) & 0xFF) if (a & 0x80) else (a << 1)
+
+
+def mix_single_column(a):
+    # see Sec 4.1.2 in The Design of Rijndael
+    t = a[0] ^ a[1] ^ a[2] ^ a[3]
+    u = a[0]
+    a[0] ^= t ^ xtime(a[0] ^ a[1])
+    a[1] ^= t ^ xtime(a[1] ^ a[2])
+    a[2] ^= t ^ xtime(a[2] ^ a[3])
+    a[3] ^= t ^ xtime(a[3] ^ u)
+
+    return a
+
+
+# def diffusion_inv():
+    # def mix_columns_inv(s):
+    #     # see Sec 4.1.3 in The Design of Rijndael
+    #     for i in range(4):
+    #         u = xtime(xtime(s[i][0] ^ s[i][2]))
+    #         v = xtime(xtime(s[i][1] ^ s[i][3]))
+    #         s[i][0] ^= u
+    #         s[i][1] ^= v
+    #         s[i][2] ^= u
+    #         s[i][3] ^= v
+    #
+    #     for j in range(4):
+    #         a = mix_single_column([m[0][j], m[1][j], m[2][j], m[3][j]])
+    #         m[0][j] = a[0]
+    #         m[1][j] = a[1]
+    #         m[2][j] = a[2]
+    #         m[3][j] = a[3]
+    #
+    #     return m
+
+    # def shift_rows(m):
+        # m[1][0], m[1][1], m[1][2], m[1][3] = m[1][1], m[1][2], m[1][3], m[1][0]
+        # m[2][0], m[2][1], m[2][2], m[2][3] = m[2][2], m[2][3], m[2][0], m[2][1]
+        # m[3][0], m[3][1], m[3][2], m[3][3] = m[3][3], m[3][0], m[3][1], m[3][2]
+        # return m
+
+    # m = shift_rows(m)
+    # if i < 10:
+    #     m = mix_columns_inv(m)
+
+    # return m
+
+
+def diffusion(m, i):
+    def shift_rows(m):
+        m[1][0], m[1][1], m[1][2], m[1][3] = m[1][1], m[1][2], m[1][3], m[1][0]
+        m[2][0], m[2][1], m[2][2], m[2][3] = m[2][2], m[2][3], m[2][0], m[2][1]
+        m[3][0], m[3][1], m[3][2], m[3][3] = m[3][3], m[3][0], m[3][1], m[3][2]
+        return m
+
+    def mix_columns(m):
+        for j in range(4):
+            a = mix_single_column([m[0][j], m[1][j], m[2][j], m[3][j]])
+            m[0][j] = a[0]
+            m[1][j] = a[1]
+            m[2][j] = a[2]
+            m[3][j] = a[3]
+
+        return m
+
+    m = shift_rows(m)
+    if i < 10:
+        m = mix_columns(m)
+
     return m
 
 
-def mix_column(_data):
-    return _data
+def key_addition(m, key):
+    k = 0
+    for j in range(4):
+        for i in range(4):
+            m[i][j] = m[i][j] ^ key[k]
+            k += 1
 
-
-def key_addition(_data):
-    return _data
+    return m
 
 
 def rounds(m, _round_keys):
-    m = byte_substitution(m)
+    m = key_addition(m, _round_keys[0])
 
     for i in range(1, 11):
         m = byte_substitution(m)
-        m = shift_rows(m)
-        if i < 10:
-            m = mix_column(m)
-        m = key_addition(m)
+        m = diffusion(m, i)
+        m = key_addition(m, _round_keys[i])
 
     return m
 
@@ -128,10 +194,25 @@ def rounds(m, _round_keys):
 def prepare_data():
     def to_matrix(_list):
         m = [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]
-        m[0] = (_list[0]), m[0] = (_list[4]), m[0] = (_list[8]), m[0] = (_list[12])
-        m[1] = (_list[1]), m[1] = (_list[5]), m[1] = (_list[9]), m[1] = (_list[13])
-        m[2] = (_list[2]), m[2] = (_list[6]), m[2] = (_list[10]), m[2] = (_list[14])
-        m[3] = (_list[3]), m[3] = (_list[7]), m[3] = (_list[11]), m[3] = (_list[15])
+        m[0][0] = _list[0]
+        m[0][1] = _list[4]
+        m[0][2] = _list[8]
+        m[0][3] = _list[12]
+
+        m[1][0] = _list[1]
+        m[1][1] = _list[5]
+        m[1][2] = _list[9]
+        m[1][3] = _list[13]
+
+        m[2][0] = _list[2]
+        m[2][1] = _list[6]
+        m[2][2] = _list[10]
+        m[2][3] = _list[14]
+
+        m[3][0] = _list[3]
+        m[3][1] = _list[7]
+        m[3][2] = _list[11]
+        m[3][3] = _list[15]
         return m
 
     def to_int_list(data_str):
@@ -141,16 +222,16 @@ def prepare_data():
         return r
 
     key_char_list = list('asdfghjklmnbvcxd')
-    data_char_list = list('asdfghjklmnbvcxd')
+    data_char_list = list('poiuytrewqasdfgh')
 
     data_int_list = to_int_list(data_char_list)
     key_int_list = to_int_list(key_char_list)
 
-    data_matrix = to_matrix(data_int_list)
+    m = to_matrix(data_int_list)
 
-    generate_round_keys(key_int_list)
+    round_keys = generate_round_keys(key_int_list)
 
-    return data_matrix, round_keys
+    return m, round_keys
 
 
 data_matrix, round_keys = prepare_data()

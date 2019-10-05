@@ -3,7 +3,10 @@
     <words>
       <w>abcd</w>
       <w>asdfghjklmnbvcxd</w>
+      <w>poiuytrewqasdfgh</w>
+      <w>rijndael</w>
       <w>xored</w>
+      <w>xtime</w>
     </words>
   </dictionary>
 </component>
