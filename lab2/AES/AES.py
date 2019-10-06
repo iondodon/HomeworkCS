@@ -258,14 +258,25 @@ def prepare_data():
     key_char_list = sys.argv[1]
     data_char_list = sys.argv[2]
 
-    data_int_list = to_int_list(data_char_list)
+    assert len(key_char_list) <= 16
+    for i in range(len(key_char_list) % 16):
+        key_char_list += '\0'
+
+    assert len(data_char_list) > 0
+    for i in range(16 - len(data_char_list) % 16):
+        data_char_list += '\0'
+
     key_int_list = to_int_list(key_char_list)
 
-    m = to_matrix(data_int_list)
+    _data_chunks = []
+    for i in range(len(data_char_list) // 16):
+        data_int_list = to_int_list(data_char_list[i * 16: (i + 1) * 16])
+        data_int_matrix = to_matrix(data_int_list)
+        _data_chunks.append(data_int_matrix)
 
     round_keys = generate_round_keys(key_int_list)
 
-    return m, round_keys
+    return _data_chunks, round_keys
 
 
 def matrix_to_list(m):
@@ -283,11 +294,21 @@ def int_list_to_string(_list):
     return _str
 
 
-data_matrix, round_keys = prepare_data()
-print(int_list_to_string(matrix_to_list(data_matrix)))
+data_chunks, round_keys = prepare_data()
 
-data_matrix = rounds(data_matrix, round_keys)
-print(int_list_to_string(matrix_to_list(data_matrix)))
+_str = ''
+for i in range(len(data_chunks)):
+    _str += int_list_to_string(matrix_to_list(data_chunks[i]))
+print('Initial plain text:\t' + _str)
 
-data_matrix = rounds_inv(data_matrix, round_keys)
-print(int_list_to_string(matrix_to_list(data_matrix)))
+_str = ''
+for i in range(len(data_chunks)):
+    data_chunks[i] = rounds(data_chunks[i], round_keys)
+    _str += int_list_to_string(matrix_to_list(data_chunks[i]))
+print('Encrypted text:\t\t' + _str)
+
+_str = ''
+for i in range(len(data_chunks)):
+    data_chunks[i] = rounds_inv(data_chunks[i], round_keys)
+    _str += int_list_to_string(matrix_to_list(data_chunks[i]))
+print('Decrypted text:\t\t' + _str)
