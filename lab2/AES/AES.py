@@ -71,7 +71,7 @@ def generate_round_keys(initial_key):
         W2 = _round_keys[i - 1][8:12]
         W3 = _round_keys[i - 1][12:]
 
-        W0 = xor(g(W0, i), W0)
+        W0 = xor(g(W3, i), W0)
         W1 = xor(W0, W1)
         W2 = xor(W1, W2)
         W3 = xor(W2, W3)
