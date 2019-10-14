@@ -14,14 +14,17 @@ def gcd_eea(r):
 
 
 def power_mod(b, p, n):
-    if p == 0:
-        return 1
-    elif p == 1:
-        return b
-    elif p % 2 == 1:
-        return b * power_mod(b, p - 1, n)
-    else:
-        return power_mod(b * b, p // 2, n)
+    result = 1
+
+    while p > 0:
+        if p % 2 == 0:
+            b = (b * b) % n
+            p = p // 2
+        else:
+            result = (result * b) % n
+            p = p - 1
+
+    return result
 
 
 print(power_mod(9, 9, 4))
