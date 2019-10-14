@@ -27,19 +27,29 @@ def power_mod(b, p, n):
     return result
 
 
-print(power_mod(9, 9, 4))
-print(9**9)
-
-p = 3
-q = 11
+p = 67
+q = 61
 
 n = p * q
+print('n=' + str(n))
 
 phi_n = (p - 1) * (q - 1)
+print('phi_n='+str(phi_n))
 
-e = 3
-print(e)
+e = 3001
+print('e='+str(e))
+
+x = 7
+print('x='+str(x))
+
+y = power_mod(x, e, n)
+print('y='+str(y))
 
 r, s, t = gcd_eea([e, phi_n])
+print('r='+str(r)+', s='+str(s)+', t='+str(t))
+
 d = s % phi_n
-print(d)
+print('d='+str(d))
+
+x = power_mod(y, d, n)
+print('x='+str(x))
