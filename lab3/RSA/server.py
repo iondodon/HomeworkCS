@@ -4,9 +4,10 @@ import rsa
 
 
 class Server:
-    keys = rsa.get_key_pair()
-
     def __init__(self, socket):
+        self.RSA = rsa.RSA()
+        self.keys = self.RSA.get_key_pair()
+
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.socket.bind(('localhost', 8989))
 
