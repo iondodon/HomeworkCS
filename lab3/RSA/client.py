@@ -2,19 +2,24 @@ import socket
 import pickle
 import rsa
 
-KEYS = rsa.get_key_pair()
+
+class Client:
+    keys = rsa.get_key_pair()
+
+    def __init__(self, socket):
+        self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.socket.connect(('localhost', 8989))
+
+        request = {'action': 'get_public_key'}
+        self.socket.send(pickle.dumps(request))
+
+        partner_pub_key_bin = self.socket.recv(1024)
+        partner_pub_key = pickle.loads(partner_pub_key_bin)
+
+        print(partner_pub_key)
+
+        self.socket.close()
 
 
 if __name__ == '__main__':
-    socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    socket.connect(('localhost', 8989))
-
-    partner_pub_key_bin = socket.recv(1024)
-    partner_pub_key = pickle.loads(partner_pub_key_bin)
-
-    data = [5, 4, 3, 2, 1]
-    data_encrypted = rsa.rsa_encrypt(partner_pub_key, data)
-    data_encrypted_bin = pickle.dumps(data_encrypted)
-    socket.send(data_encrypted_bin)
-
-    socket.close()
+    client = Client(socket)
