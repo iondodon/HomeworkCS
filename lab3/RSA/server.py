@@ -4,7 +4,7 @@ import rsa
 
 
 class Server:
-    def __init__(self, socket):
+    def __init__(self):
         self.RSA = rsa.RSA()
         self.keys = self.RSA.get_key_pair()
 
@@ -21,19 +21,17 @@ class Server:
     def listen(self):
         self.socket.listen()
 
+        client_socket, client_addr = self.socket.accept()
         while True:
-            client_socket, client_addr = self.socket.accept()
-
-            request_bin = client_socket.recv(1024)
-            request: dict = pickle.loads(request_bin)
-
-            self.process_query(request, client_socket)  #
+            request_dict_bin = client_socket.recv(1024)
+            request: dict = pickle.loads(request_dict_bin)
+            self.process_query(request, client_socket)
 
     def close_socket(self):
         self.socket.close()
 
 
 if __name__ == '__main__':
-    server = Server(socket)
+    server = Server()
     server.listen()
     server.close_socket()
