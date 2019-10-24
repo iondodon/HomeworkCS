@@ -13,7 +13,7 @@ class Client:
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.socket.connect(('localhost', 8989))
 
-        self.partner_pub_key = None
+        self.server_pub_key = None
         self.requesting_thread = None
         self.listening_thread = None
         self.threads = []
@@ -30,16 +30,29 @@ class Client:
         for thread in self.threads:
             thread.join()
 
+    def process_response(self, response_dist):
+        if response_dist['type'] == 'public_key':
+            self.server_pub_key = response_dist['public_key']
+            print(self.server_pub_key)
+
     def listen(self):
         while True:
-            response_data_bin = self.socket.recv(1024)
-            self.partner_pub_key = pickle.loads(response_data_bin)
-            print(self.partner_pub_key)
+            response_dict_bin = self.socket.recv(1024)
+            response_dict = pickle.loads(response_dict_bin)
+            self.process_response(response_dict)
+
+    def process_request(self, request_dict):
+        if request_dict['action'] == 'send_data':
+            data_int_list = self.RSA.to_int_list(request_dict['data'])
+            data_encrypted_int_list = self.RSA.rsa_encrypt(self.server_pub_key, data_int_list)
+            request_dict['data'] = data_encrypted_int_list
+        return request_dict
 
     def request(self):
         while True:
             request_string_json = input()
             request_dict = json.loads(request_string_json)
+            request_dict = self.process_request(request_dict)
             request_dict_binary = pickle.dumps(request_dict)
             self.socket.send(request_dict_binary)
 
