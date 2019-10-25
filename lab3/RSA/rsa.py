@@ -7,7 +7,8 @@ class RSA:
     def __init__(self):
         pass
 
-    def gcd_eea(self, r):
+    @staticmethod
+    def gcd_eea(r):
         s = [1, 0]
         t = [0, 1]
         i = 1

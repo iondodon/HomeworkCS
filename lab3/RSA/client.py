@@ -30,31 +30,44 @@ class Client:
         for thread in self.threads:
             thread.join()
 
+    def show_response(self, response_dist):
+        encrypted_response_message = response_dist['message']
+        decrypted_response_message = self.RSA.rsa_decrypt(self.keys[1], encrypted_response_message)
+        print(self.RSA.to_string(decrypted_response_message))
+
     def process_response(self, response_dist):
-        if response_dist['type'] == 'public_key':
+        if response_dist['type'] == 'server_pub_key':
             self.server_pub_key = response_dist['public_key']
-            print(self.server_pub_key)
+        elif response_dist['type'] == 'response_message':
+            self.show_response(response_dist)
+
+    def process_request_before_send(self, request_dict):
+        if request_dict['type'] == 'send_message':
+            data_int_list = self.RSA.to_int_list(request_dict['message'])
+            data_encrypted_int_list = self.RSA.rsa_encrypt(self.server_pub_key, data_int_list)
+            request_dict['message'] = data_encrypted_int_list
+        return request_dict
+
+    def request(self):
+        self.exchange_keys()
+        while True:
+            request_string_json = input()
+            request_dict = json.loads(request_string_json)
+            request_dict = self.process_request_before_send(request_dict)
+            request_dict_binary = pickle.dumps(request_dict)
+            self.socket.send(request_dict_binary)
+
+    def exchange_keys(self):
+        if not self.server_pub_key:
+            new_request_dict = {'type': 'get_server_pub_key', 'client_pub_key': self.keys[0]}
+            new_request_dict_bin = pickle.dumps(new_request_dict)
+            self.socket.send(new_request_dict_bin)
 
     def listen(self):
         while True:
             response_dict_bin = self.socket.recv(1024)
             response_dict = pickle.loads(response_dict_bin)
             self.process_response(response_dict)
-
-    def process_request(self, request_dict):
-        if request_dict['action'] == 'send_data':
-            data_int_list = self.RSA.to_int_list(request_dict['data'])
-            data_encrypted_int_list = self.RSA.rsa_encrypt(self.server_pub_key, data_int_list)
-            request_dict['data'] = data_encrypted_int_list
-        return request_dict
-
-    def request(self):
-        while True:
-            request_string_json = input()
-            request_dict = json.loads(request_string_json)
-            request_dict = self.process_request(request_dict)
-            request_dict_binary = pickle.dumps(request_dict)
-            self.socket.send(request_dict_binary)
 
     def close_socket(self):
         self.socket.close()
