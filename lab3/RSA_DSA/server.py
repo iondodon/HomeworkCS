@@ -39,8 +39,15 @@ class Server:
         self.client_socket.send(response_dict_bin)
 
     def send_response_message(self, message_int_list):
+        plain_message_string = self.RSA.to_string(message_int_list)
+        plain_message_string_encoded = str.encode(plain_message_string, "ascii")
+        dsa_r, dsa_s = self.DSA.sign(plain_message_string_encoded, self.dsa_p, self.dsa_q, self.dsa_g, self.dsa_priv_key)
         encrypted_response_message_int_list = self.RSA.rsa_encrypt(self.client_pub_key, message_int_list)
-        response = {'type': "response_message", 'message': encrypted_response_message_int_list}
+        response = {
+            'type': "response_message",
+            'message': encrypted_response_message_int_list,
+            'signature': {'dsa_r': dsa_r, 'dsa_s': dsa_s}
+        }
         response_bin = pickle.dumps(response)
         self.client_socket.send(response_bin)
 

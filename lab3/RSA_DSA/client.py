@@ -39,9 +39,22 @@ class Client:
         for thread in self.threads:
             thread.join()
 
+    def check_signature(self, plain_message, signature):
+        if self.DSA.verify(
+                str.encode(plain_message, "ascii"),
+                signature['dsa_r'],
+                signature['dsa_s'],
+                self.dsa_p, self.dsa_q, self.dsa_g,
+                self.server_dsa_pub_key):
+            print("Message is authentic!")
+        else:
+            print("Message is not authentic!")
+
     def show_response(self, response_dist):
         encrypted_response_message = response_dist['message']
         decrypted_response_message = self.RSA.rsa_decrypt(self.keys[1], encrypted_response_message)
+        decrypted_response_message_string = self.RSA.to_string(decrypted_response_message)
+        self.check_signature(decrypted_response_message_string, response_dist['signature'])
         print(self.RSA.to_string(decrypted_response_message))
 
     def process_response(self, response_dist):
