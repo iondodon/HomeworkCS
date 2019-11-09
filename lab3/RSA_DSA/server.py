@@ -1,14 +1,23 @@
 import socket
 import pickle
 import rsa
+import dsa
 
 
 class Server:
     def __init__(self):
         self.RSA = rsa.RSA()
+        self.DSA = dsa.DSA()
         self.keys = self.RSA.get_key_pair()
 
         self.client_pub_key = None
+        self.client_dsa_pub_key = None
+        self.dsa_p = None
+        self.dsa_q = None
+        self.dsa_g = None
+        self.dsa_priv_key = None
+        self.dsa_pub_key = None
+
         self.client_socket = None
 
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -16,7 +25,16 @@ class Server:
 
     def exchange_keys(self, request):
         self.client_pub_key = request['client_pub_key']
-        response_dict = {'type': "server_pub_key", 'public_key': self.keys[0]}
+        self.client_dsa_pub_key = request['client_dsa_pub_key']
+        self.dsa_p = request['dsa_p']
+        self.dsa_q = request['dsa_q']
+        self.dsa_g = request['dsa_g']
+        self.dsa_priv_key, self.dsa_pub_key = self.DSA.generate_keys(self.dsa_g, self.dsa_p, self.dsa_q)
+        response_dict = {
+            'type': "exchange_keys",
+            'server_public_key': self.keys[0],
+            'server_dsa_pub_key': self.dsa_pub_key
+        }
         response_dict_bin = pickle.dumps(response_dict)
         self.client_socket.send(response_dict_bin)
 
@@ -26,16 +44,30 @@ class Server:
         response_bin = pickle.dumps(response)
         self.client_socket.send(response_bin)
 
-    def show_message(self, encrypted_message_int_list):
+    def show_message(self, request):
+        encrypted_message_int_list = request['message']
         decrypted_message_int_list = self.RSA.rsa_decrypt(self.keys[1], encrypted_message_int_list)
-        print(self.RSA.to_string(decrypted_message_int_list))
+        decrypted_message_string = self.RSA.to_string(decrypted_message_int_list)
+        self.check_signature(decrypted_message_string, request['signature'])
+        print(decrypted_message_string)
         self.send_response_message(decrypted_message_int_list)
 
+    def check_signature(self, message, signature):
+        if self.DSA.verify(
+                str.encode(message, "ascii"),
+                signature['dsa_r'],
+                signature['dsa_s'],
+                self.dsa_p, self.dsa_q, self.dsa_g,
+                self.client_dsa_pub_key):
+            print("Message is authentic!")
+        else:
+            print("Message is not authentic!")
+
     def process_request(self, request):
-        if request['type'] == "get_server_pub_key":
+        if request['type'] == "exchange_keys":
             self.exchange_keys(request)
         elif request['type'] == "send_message":
-            self.show_message(request['message'])
+            self.show_message(request)
 
     def listen(self):
         self.socket.listen()

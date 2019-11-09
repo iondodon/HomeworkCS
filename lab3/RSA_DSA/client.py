@@ -3,17 +3,26 @@ import pickle
 import rsa
 import threading
 import json
+import dsa
 
 
 class Client:
     def __init__(self):
         self.RSA = rsa.RSA()
+        self.DSA = dsa.DSA()
         self.keys = self.RSA.get_key_pair()
+
+        N = 160
+        L = 1024
+
+        self.dsa_p, self.dsa_q, self.dsa_g = self.DSA.generate_params(L, N)
+        self.dsa_priv_key, self.dsa_pub_key = self.DSA.generate_keys(self.dsa_g, self.dsa_p, self.dsa_q)
 
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.socket.connect(('localhost', 8989))
 
         self.server_pub_key = None
+        self.server_dsa_pub_key = None
         self.requesting_thread = None
         self.listening_thread = None
         self.threads = []
@@ -36,13 +45,17 @@ class Client:
         print(self.RSA.to_string(decrypted_response_message))
 
     def process_response(self, response_dist):
-        if response_dist['type'] == "server_pub_key":
-            self.server_pub_key = response_dist['public_key']
+        if response_dist['type'] == "exchange_keys":
+            self.server_pub_key = response_dist['server_public_key']
+            self.server_dsa_pub_key = response_dist['server_dsa_pub_key']
         elif response_dist['type'] == "response_message":
             self.show_response(response_dist)
 
-    def encrypt_message(self, request_dict):
+    def encrypt_sign_message(self, request_dict):
         if request_dict['type'] == "send_message":
+            message = str.encode(request_dict['message'], "ascii")
+            dsa_r, dsa_s = self.DSA.sign(message, self.dsa_p, self.dsa_q, self.dsa_g, self.dsa_priv_key)
+            request_dict['signature'] = {'dsa_r': dsa_r, 'dsa_s': dsa_s}
             data_int_list = self.RSA.to_int_list(request_dict['message'])
             data_encrypted_int_list = self.RSA.rsa_encrypt(self.server_pub_key, data_int_list)
             request_dict['message'] = data_encrypted_int_list
@@ -53,13 +66,20 @@ class Client:
         while True:
             request_string_json = input()
             request_dict = json.loads(request_string_json)
-            request_dict = self.encrypt_message(request_dict)
+            request_dict = self.encrypt_sign_message(request_dict)
             request_dict_binary = pickle.dumps(request_dict)
             self.socket.send(request_dict_binary)
 
     def exchange_keys(self):
         if not self.server_pub_key:
-            new_request_dict = {'type': "get_server_pub_key", "client_pub_key": self.keys[0]}
+            new_request_dict = {
+                'type': "exchange_keys",
+                'client_pub_key': self.keys[0],
+                'client_dsa_pub_key': self.dsa_pub_key,
+                'dsa_p': self.dsa_p,
+                'dsa_q': self.dsa_q,
+                'dsa_g': self.dsa_g
+            }
             new_request_dict_bin = pickle.dumps(new_request_dict)
             self.socket.send(new_request_dict_bin)
 
