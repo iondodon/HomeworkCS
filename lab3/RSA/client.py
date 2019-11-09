@@ -20,12 +20,12 @@ class Client:
 
     def start_threads(self):
         self.threads = []
-        self.requesting_thread = threading.Thread(target=self.request, args=())
         self.listening_thread = threading.Thread(target=self.listen, args=())
-        self.threads.append(self.requesting_thread)
         self.threads.append(self.listening_thread)
-        self.requesting_thread.start()
+        self.requesting_thread = threading.Thread(target=self.request, args=())
+        self.threads.append(self.requesting_thread)
         self.listening_thread.start()
+        self.requesting_thread.start()
 
         for thread in self.threads:
             thread.join()
@@ -36,13 +36,13 @@ class Client:
         print(self.RSA.to_string(decrypted_response_message))
 
     def process_response(self, response_dist):
-        if response_dist['type'] == 'server_pub_key':
+        if response_dist['type'] == "server_pub_key":
             self.server_pub_key = response_dist['public_key']
-        elif response_dist['type'] == 'response_message':
+        elif response_dist['type'] == "response_message":
             self.show_response(response_dist)
 
-    def process_request_before_send(self, request_dict):
-        if request_dict['type'] == 'send_message':
+    def encrypt_message(self, request_dict):
+        if request_dict['type'] == "send_message":
             data_int_list = self.RSA.to_int_list(request_dict['message'])
             data_encrypted_int_list = self.RSA.rsa_encrypt(self.server_pub_key, data_int_list)
             request_dict['message'] = data_encrypted_int_list
@@ -53,13 +53,13 @@ class Client:
         while True:
             request_string_json = input()
             request_dict = json.loads(request_string_json)
-            request_dict = self.process_request_before_send(request_dict)
+            request_dict = self.encrypt_message(request_dict)
             request_dict_binary = pickle.dumps(request_dict)
             self.socket.send(request_dict_binary)
 
     def exchange_keys(self):
         if not self.server_pub_key:
-            new_request_dict = {'type': 'get_server_pub_key', 'client_pub_key': self.keys[0]}
+            new_request_dict = {'type': "get_server_pub_key", "client_pub_key": self.keys[0]}
             new_request_dict_bin = pickle.dumps(new_request_dict)
             self.socket.send(new_request_dict_bin)
 
@@ -74,5 +74,6 @@ class Client:
 
 
 if __name__ == '__main__':
+    # { "type": "send_message", "message": "ionnnn" }
     client = Client()
     client.start_threads()

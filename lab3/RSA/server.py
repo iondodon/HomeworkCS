@@ -4,8 +4,6 @@ import rsa
 
 
 class Server:
-    USERS = [{'username': 'iondodon', 'age': 21}, {'username': 'anaana', 'age': 21}]
-
     def __init__(self):
         self.RSA = rsa.RSA()
         self.keys = self.RSA.get_key_pair()
@@ -18,13 +16,13 @@ class Server:
 
     def exchange_keys(self, request):
         self.client_pub_key = request['client_pub_key']
-        response_dict = {'type': 'server_pub_key', 'public_key': self.keys[0]}
+        response_dict = {'type': "server_pub_key", 'public_key': self.keys[0]}
         response_dict_bin = pickle.dumps(response_dict)
         self.client_socket.send(response_dict_bin)
 
     def send_response_message(self, message_int_list):
         encrypted_response_message_int_list = self.RSA.rsa_encrypt(self.client_pub_key, message_int_list)
-        response = {'type': 'response_message', 'message': encrypted_response_message_int_list}
+        response = {'type': "response_message", 'message': encrypted_response_message_int_list}
         response_bin = pickle.dumps(response)
         self.client_socket.send(response_bin)
 
@@ -34,9 +32,9 @@ class Server:
         self.send_response_message(decrypted_message_int_list)
 
     def process_request(self, request):
-        if request['type'] == 'get_server_pub_key':
+        if request['type'] == "get_server_pub_key":
             self.exchange_keys(request)
-        elif request['type'] == 'send_message':
+        elif request['type'] == "send_message":
             self.show_message(request['message'])
 
     def listen(self):
