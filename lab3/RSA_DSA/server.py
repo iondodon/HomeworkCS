@@ -10,6 +10,10 @@ class Server:
         self.DSA = dsa.DSA()
         self.keys = self.RSA.get_key_pair()
 
+        print("Server RSA private key: ", self.keys[1])
+        print("Server RSA public key: ", self.keys[0])
+        print("==================================================================")
+
         self.client_pub_key = None
         self.client_dsa_pub_key = None
         self.dsa_p = None
@@ -25,11 +29,18 @@ class Server:
 
     def exchange_keys(self, request):
         self.client_pub_key = request['client_pub_key']
+        print("Client public key: ", self.client_pub_key)
         self.client_dsa_pub_key = request['client_dsa_pub_key']
+        print("Client DSA public key: ", self.client_dsa_pub_key)
         self.dsa_p = request['dsa_p']
         self.dsa_q = request['dsa_q']
         self.dsa_g = request['dsa_g']
+        # print("DSA p: ", self.dsa_p)
+        # print("DSA q: ", self.dsa_q)
+        # print("DSA g: ", self.dsa_g)
         self.dsa_priv_key, self.dsa_pub_key = self.DSA.generate_keys(self.dsa_g, self.dsa_p, self.dsa_q)
+        print("Server DSA private key: ", self.dsa_priv_key)
+        print("Server DSA public key: ", self.dsa_pub_key)
         response_dict = {
             'type': "exchange_keys",
             'server_public_key': self.keys[0],
@@ -37,6 +48,7 @@ class Server:
         }
         response_dict_bin = pickle.dumps(response_dict)
         self.client_socket.send(response_dict_bin)
+        print("==================================================================")
 
     def send_response_message(self, message_int_list):
         plain_message_string = self.RSA.to_string(message_int_list)
@@ -53,11 +65,14 @@ class Server:
 
     def show_message(self, request):
         encrypted_message_int_list = request['message']
+        print("Encrypted message: ", encrypted_message_int_list)
         decrypted_message_int_list = self.RSA.rsa_decrypt(self.keys[1], encrypted_message_int_list)
+        print("Decrypted message: ", decrypted_message_int_list)
         decrypted_message_string = self.RSA.to_string(decrypted_message_int_list)
         self.check_signature(decrypted_message_string, request['signature'])
-        print(decrypted_message_string)
+        print("Decrypted message: ", decrypted_message_string)
         self.send_response_message(decrypted_message_int_list)
+        print("==================================================================")
 
     def check_signature(self, message, signature):
         if self.DSA.verify(
@@ -69,6 +84,7 @@ class Server:
             print("Message is authentic!")
         else:
             print("Message is not authentic!")
+        print("==================================================================")
 
     def process_request(self, request):
         if request['type'] == "exchange_keys":

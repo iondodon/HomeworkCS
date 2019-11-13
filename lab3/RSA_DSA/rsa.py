@@ -42,9 +42,9 @@ class RSA:
         n = p * q
         phi_n = (p - 1) * (q - 1)
 
-        e = phi_n - 1
+        e = 2
         while self.gcd_eea([e, phi_n])[0] != 1 and e - 1 > 0:
-            e = e - 1
+            e = e + 1
 
         r, s, t = self.gcd_eea([e, phi_n])
         d = s % phi_n
