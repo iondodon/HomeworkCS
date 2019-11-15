@@ -105,6 +105,7 @@ class DSA:
         u2 = (r * w) % q
         # v = ((g ** u1 * y ** u2) % p) % q
         v = (powmod(g, u1, p) * powmod(y, u2, p)) % p % q
+        print("Calculated v = ", v)
         if v == r:
             return True
         return False

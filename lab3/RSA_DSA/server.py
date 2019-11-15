@@ -75,6 +75,7 @@ class Server:
         print("==================================================================")
 
     def check_signature(self, message, signature):
+        print("Received signature: ", signature)
         if self.DSA.verify(
                 str.encode(message, "ascii"),
                 signature['dsa_r'],

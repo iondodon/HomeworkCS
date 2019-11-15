@@ -46,7 +46,7 @@ class Client:
             thread.join()
 
     def check_signature(self, plain_message, signature):
-        print("The signature: ", signature)
+        print("Received signature: ", signature)
         if self.DSA.verify(
                 str.encode(plain_message, "ascii"),
                 signature['dsa_r'],
